@@ -18,8 +18,8 @@ for k = 1:hSize(1)
 
 end
 
-hNData = normalize(hData, 'zscore');
-fNData = normalize(fData, 'zscore');
+hNData = normalize(hData);
+fNData = normalize(fData);
 
 % visualize
 % for i = 1:20
