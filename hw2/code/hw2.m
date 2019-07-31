@@ -18,8 +18,9 @@ for k = 1:hSize(1)
 
 end
 
-hNData = normalize(hData);
-fNData = normalize(fData);
+hNData = normalize(hData, 'norm', 1);
+fNData = normalize(fData, 'norm', 1);
+
 
 % visualize
 % for i = 1:20
@@ -48,6 +49,26 @@ model = glmfit(dataTrain, labelTrain,'binomial');
 % [b,dev,stats] = glmfit(x,y,'normal');
 CV_Test = glmval(model, dataTest, 'logit') ;  %Use LR Model
 
-% [xH, yH] = self_fft(hNData, fs);
-% [xF, yF] = self_fft(fNData, fs);
+%% ploting
+figure;
+x = linspace(0,10,12);
+
+plot(x,labelTest, 'r')
+title('Predicition result numerical');
+
+hold on
+
+plot(x, CV_Test, 'b')
+
+legend('real label','prediction label')
+
+hold off
+
+%% convert to discrete domain
+predResult(CV_Test < 0.5) = 0;
+predResult(CV_Test >= 0.5) = 1;
+
+realResult(labelTest < 0.5) = 0;
+realResult(labelTest >= 0.5) = 1;
+
 
