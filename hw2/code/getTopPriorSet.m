@@ -1,11 +1,10 @@
-function y = getIndex(x1, x2, topK)
+function [x, y1, y2] = getTopPriorSet(x1, x2, topK)
     fs = 2560;
     healthArr = [];
     faultArr = [];
     xSize = size(x1);
 
     for i = 1:xSize(2)
-
         [xHealth, fftHP1] = self_fft(x1(:, i), fs);
         healthArr = [healthArr fftHP1];
         
@@ -17,10 +16,14 @@ function y = getIndex(x1, x2, topK)
     score = meanDiff ./ varSum;
     
     [out,idx] = sort(score, 'descend');
-    y = idx(1:topK, 1);
+    topIndex = idx(1:topK, 1);
     disp('top-3 idx:');
-    disp(idx(1:3, 1));
+    disp(idx(1:topK, 1));
     disp('top-3 value:');
-    disp(out(1:3, 1));
-   
+    disp(out(1:topK, 1));
+    
+    x = xFault;
+    y1 = healthArr(topIndex, :).';
+    y2 = faultArr(topIndex, :).';
+    
 end
