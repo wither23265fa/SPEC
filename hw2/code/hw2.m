@@ -1,25 +1,34 @@
 hAddress = '..//Training//Healthy//';
 fAddress = '..//Training//Faulty//';
+tAddress = '..//Testing//';
 
 healthy = dir([hAddress, '*.txt']);
 faulty = dir([fAddress, '*.txt']);
+testShaft = dir([tAddress, '*.txt']);
 
 fs = 2560
-
 hSize = size(healthy)
+tSize = size(testShaft)
+
 hData=[];
 fData =[];
+tData = [];
 
 for k = 1:hSize(1)
     hSignal = importdata([hAddress, healthy(k).name]);
     fSignal = importdata([fAddress, faulty(k).name]);
     hData = [hData hSignal.data];
     fData = [fData fSignal.data];
+end
 
+for i = 1:tSize(1)
+    signal = importdata([tAddress, testShaft(i).name]);
+    tData = [tData signal.data];
 end
 
 hNData = normalize(hData, 'norm', 1);
 fNData = normalize(fData, 'norm', 1);
+tNData = normalize(tData, 'norm', 1);
 
 
 % visualize
@@ -31,7 +40,7 @@ fNData = normalize(fData, 'norm', 1);
 % end
 
 %% get top priority
-[x, yH, yF] = getTopPriorSet(hNData, fNData, 3);
+[x, yH, yF, topIndex] = getTopPriorSet(hNData, fNData, 3);
 labels = [ones(size(yH,1),1)*0.95; ones(size(yF,1),1)*0.05];
 
 %% split data
@@ -44,10 +53,10 @@ dataTest  = data(idx,:);
 labelTrain = labels(~idx,:);
 labelTest = labels(idx,:);
 
-%% start training
-model = glmfit(dataTrain, labelTrain,'binomial');
+%% training and testing
+model = glmfit(dataTrain, labelTrain, 'binomial');
 % [b,dev,stats] = glmfit(x,y,'normal');
-CV_Test = glmval(model, dataTest, 'logit') ;  %Use LR Model
+CV_Test = glmval(model, dataTest, 'logit');  %Use LR Model
 
 %% ploting
 figure;
@@ -71,4 +80,30 @@ predResult(CV_Test >= 0.5) = 1;
 realResult(labelTest < 0.5) = 0;
 realResult(labelTest >= 0.5) = 1;
 
+% predResult = predResult.';
+% realResult = realResult.';
 
+%% Confusion matrix
+% figure;
+plotconfusion(realResult, predResult)
+
+%% ROC 
+[X,Y,T,AUC] = perfcurve(realResult, CV_Test, 1);
+
+AUC
+% figure;
+plot(X,Y, 'LineWidth',8)
+xlabel('False positive rate') 
+ylabel('True positive rate')
+title('ROC for Classification by Logistic Regression')
+
+%% Run testing data by model
+testTop = tNData(topIndex, :).';
+realTest = glmval(model, testTop, 'logit');  %Use LR Model
+
+%% Plot testing data
+figure;
+x = linspace(0,30,30);
+
+plot(x,realTest, 'r')
+title('Predicition result numerical');
