@@ -30,14 +30,13 @@ hNData = normalize(hData, 'norm', 1);
 fNData = normalize(fData, 'norm', 1);
 tNData = normalize(tData, 'norm', 1);
 
-
 % visualize
-% for i = 1:20
-%     hti = strcat("Healthy ", int2str(i));
-%     fti = strcat("Faulty ", int2str(i));
-%     tCombine = strcat('combine ', int2str(i));
-%     bind_fft(hNData(:, i+6), fNData(:, i), tCombine);
-% end
+for i = 1:2
+    hti = strcat("Healthy ", int2str(i));
+    fti = strcat("Faulty ", int2str(i));
+    tCombine = strcat('combine ', int2str(i));
+    bind_fft(hNData(:, i), fNData(:, i), tCombine);
+end
 
 %% get top priority
 [x, yH, yF, topIndex] = getTopPriorSet(hNData, fNData, 3);
@@ -73,6 +72,7 @@ legend('real label','prediction label')
 
 hold off
 
+
 %% convert to discrete domain
 predResult(CV_Test < 0.5) = 0;
 predResult(CV_Test >= 0.5) = 1;
@@ -80,30 +80,21 @@ predResult(CV_Test >= 0.5) = 1;
 realResult(labelTest < 0.5) = 0;
 realResult(labelTest >= 0.5) = 1;
 
+figure;
+x = linspace(0,10,12);
+
+plot(x,realResult, 'r')
+title('Predicition result logical');
+
+hold on
+
+plot(x, predResult, 'b')
+
+legend('real label','prediction label')
+
+hold off
+
 % predResult = predResult.';
 % realResult = realResult.';
 
-%% Confusion matrix
-% figure;
-plotconfusion(realResult, predResult)
 
-%% ROC 
-[X,Y,T,AUC] = perfcurve(realResult, CV_Test, 1);
-
-AUC
-% figure;
-plot(X,Y, 'LineWidth',8)
-xlabel('False positive rate') 
-ylabel('True positive rate')
-title('ROC for Classification by Logistic Regression')
-
-%% Run testing data by model
-testTop = tNData(topIndex, :).';
-realTest = glmval(model, testTop, 'logit');  %Use LR Model
-
-%% Plot testing data
-figure;
-x = linspace(0,30,30);
-
-plot(x,realTest, 'r')
-title('Predicition result numerical');
