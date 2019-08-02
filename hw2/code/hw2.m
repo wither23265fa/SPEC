@@ -111,5 +111,17 @@ ylabel('True positive rate')
 title('ROC for Classification by Logistic Regression') 
  
 %% Run testing data by model 
-testTop = tNData(topIndex, :).'; 
+tSize = size(tNData);
+testArr = [];
+for i = 1:tSize(2)
+    [xTest, fftTP1] = self_fft(tNData(:, i), fs);
+    testArr = [testArr fftTP1];        
+end
+
+testTop = testArr(topIndex, :).'; 
 realTest = glmval(model, testTop, 'logit');  %Use LR Model 
+
+figure
+x = linspace(0, 30, 30);
+plot(x, realTest, 'r')
+title('Prediction result numberical in testing result');
