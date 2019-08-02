@@ -31,17 +31,16 @@ fNData = normalize(fData, 'norm', 1);
 tNData = normalize(tData, 'norm', 1);
 
 % visualize
-% for i = 1:20
-%     hti = strcat("Healthy ", int2str(i));
-%     fti = strcat("Faulty ", int2str(i));
-%     tCombine = strcat('combine ', int2str(i));
-%     bind_fft(hNData(:, i+6), fNData(:, i), tCombine);
-% end
+for i = 1:2
+    hti = strcat("Healthy ", int2str(i));
+    fti = strcat("Faulty ", int2str(i));
+    tCombine = strcat('combine ', int2str(i));
+    bind_fft(hNData(:, i), fNData(:, i), tCombine);
+end
 
 %% get top priority
-[x, yH, yF] = getTopPriorSet(hNData, fNData, 3);
+[x, yH, yF, topIndex] = getTopPriorSet(hNData, fNData, 3);
 labels = [ones(size(yH,1),1)*0.95; ones(size(yF,1),1)*0.05];
-
 
 %% split data
 data = [yH ;yF];%40*3 data combine after feature extraction  
@@ -53,11 +52,83 @@ dataTest  = data(idx,:);
 labelTrain = labels(~idx,:);
 labelTest = labels(idx,:);
 
-%% start training
+data=[dataTrain]
+labels=[labelTrain]
+%% start training logistic regression 
 model = glmfit(dataTrain, labelTrain,'binomial');
-% [b,dev,stats] = glmfit(x,y,'normal');
 CV_Test = glmval(model, dataTest, 'logit') ;  %Use LR Model
 
-% [xH, yH] = self_fft(hNData, fs);
-% [xF, yF] = self_fft(fNData, fs);
+%% Cross validation
+accuracy = [zeros(4,1)]
+indices = crossvalind('Kfold',labels,4);
+for i = 1:4
+    test = (indices == i); 
+    train = ~test;
+    dataTrain(test,:)
+    labelTrain(test,:)
+    relabel = labels(test,:) > 0.5
+    [b,dev,stats] = glmfit(data(train,:),labels(train),'binomial','logit'); % Logistic regression
+    yhat=glmval(b,data(test,:), 'logit' );
+    class_Healthy=yhat > 0.5;
+    acc = (relabel == class_Healthy)
+    accuracy(i) = sum(acc)/ size(acc,1) 
+end
+accuracy_per = (sum(accuracy)/ size(accuracy,1))*100
+fprintf('Accuracy = %d %% \n', accuracy_per)
 
+%% ploting
+figure;
+x = linspace(0,10,12);
+
+plot(x,labelTest, 'r')
+title('Predicition result numerical');
+
+hold on
+
+plot(x, CV_Test, 'b')
+
+legend('real label','prediction label')
+
+hold off
+
+%% convert to discrete domain
+predResult(CV_Test < 0.5) = 0;
+predResult(CV_Test >= 0.5) = 1;
+
+realResult(labelTest < 0.5) = 0;
+realResult(labelTest >= 0.5) = 1;
+
+figure;
+x = linspace(0,10,12);
+
+plot(x,realResult, 'r')
+title('Predicition result logical');
+
+hold on
+
+plot(x, predResult, 'b')
+
+legend('real label','prediction label')
+
+hold off
+
+% predResult = predResult.';
+% realResult = realResult.';
+
+%% Confusion matrix 
+% figure; 
+plotconfusion(realResult, predResult) 
+ 
+%% ROC  
+[X,Y,T,AUC] = perfcurve(realResult, CV_Test, 1); 
+ 
+AUC 
+figure; 
+plot(X,Y, 'LineWidth',8) 
+xlabel('False positive rate')  
+ylabel('True positive rate') 
+title('ROC for Classification by Logistic Regression') 
+ 
+%% Run testing data by model 
+testTop = tNData(topIndex, :).'; 
+realTest = glmval(model, testTop, 'logit');  %Use LR Model 
