@@ -72,7 +72,6 @@ legend('real label','prediction label')
 
 hold off
 
-
 %% convert to discrete domain
 predResult(CV_Test < 0.5) = 0;
 predResult(CV_Test >= 0.5) = 1;
@@ -97,4 +96,20 @@ hold off
 % predResult = predResult.';
 % realResult = realResult.';
 
-
+%% Confusion matrix 
+% figure; 
+plotconfusion(realResult, predResult) 
+ 
+%% ROC  
+[X,Y,T,AUC] = perfcurve(realResult, CV_Test, 1); 
+ 
+AUC 
+figure; 
+plot(X,Y, 'LineWidth',8) 
+xlabel('False positive rate')  
+ylabel('True positive rate') 
+title('ROC for Classification by Logistic Regression') 
+ 
+%% Run testing data by model 
+testTop = tNData(topIndex, :).'; 
+realTest = glmval(model, testTop, 'logit');  %Use LR Model 
