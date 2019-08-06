@@ -9,7 +9,9 @@ function [x, y1, y2, topIndex] = getTopPriorSet(x1, x2, topK)
         healthArr = [healthArr fftHP1];
         
         [xFault, fftFP1] = self_fft(x2(:, i), fs);
-        faultArr = [faultArr fftFP1];
+        
+        [xFault, fftFP2] = self_fft(x2(:, i + xSize(2)), fs);
+        faultArr = [faultArr fftFP1 fftFP2];
     end
     meanDiff = (mean(healthArr, 2) - mean(faultArr, 2)).^2;
     varSum = var(healthArr,0,2) + var(faultArr,0,2);
