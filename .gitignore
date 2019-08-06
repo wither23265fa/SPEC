@@ -2,5 +2,6 @@
 *.pdf
 *.zip
 *.asv
-*.pptx
+*.ppt*
+*.txt
 /hw1
