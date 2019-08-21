@@ -1,12 +1,14 @@
 close all, clear all, clc, format compact
 
 % number of samples of each cluster
-K = 200;
+K = 10;
 % offset of classes
 q = 1.1;
 % define 4 clusters of input data
 P = [rand(1,K)-q rand(1,K)+q rand(1,K)+q;
      rand(1,K)+q rand(1,K)+q rand(1,K)-q];
+P1=P(1,:)
+P2=P(2,:)
 % plot clusters
 plot(P(1,:),P(2,:),'k*')
 hold on
@@ -30,7 +32,6 @@ plotsomtop(net)
 
 %%
 % plot input data and SOM weight positions
-plotsomtop(net)
 plotsompos(net,P);
 grid on
 

@@ -1,7 +1,7 @@
 close all, clear all, clc, format compact
 
 % number of samples of each cluster
-K = 200;
+K = 10;
 % offset of classes
 q = 1.1;
 % define 4 clusters of input data
@@ -56,6 +56,7 @@ plot(Sample(1),Sample(2),'r*')
 
 % find bmu
 Hits = sim(net,Sample);
+Hits
 L = find(Hits==1);
 BMU = Weights(L,:);
 plot(BMU(1),BMU(2),'ro')
