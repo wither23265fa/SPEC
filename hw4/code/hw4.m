@@ -110,7 +110,10 @@ for j = 1:L
     svs = sv{j};
     plot(svs(:,1),svs(:,2),markers{j},'MarkerSize',10 + (j - 1)*3);
 end
-title('ECOC Support Vectors')
+
+svs = sv(3);
+
+title('Support Vectors Result')
 xlabel(predictorNames{1})
 ylabel(predictorNames{2})
 legend([classNames,{'Support vectors - SVM 1','Support vectors - SVM 2','Support vectors - SVM 3'}],'Location','Best')

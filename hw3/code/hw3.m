@@ -70,8 +70,6 @@ dataTest  = yFFT(idx,:);
 labelTrain = labelAssign(~idx,:);
 labelTest = labelAssign(idx,:);
 
-data=[dataTrain];
-labels=[labelTrain];
 
 %% start training logistic regression 
 [model ,dev,stats] = mnrfit(dataTrain, labelTrain);
@@ -81,19 +79,19 @@ pihat = mnrval(model,dataTest)
 result = mIdx' - 1
 % CV_Test = glmval(model, dataTest, 'logit') ;  %Use LR Model
 %% Run testing data by model 
-tSize = size(tNData);
-testArr = [];
-for i = 1:tSize(2)
-    [xTest, fftTP1] = self_fft(tNData(:, i), fs);
-    testArr = [testArr fftTP1];        
-end
-
-testTop = testArr(topIndex, :).'; 
-% realTest = glmval(model, testTop, 'logit');   
-
-tmpTest = mnrval(model,testTop) %Use LR Model multiclass
-[M, mIdx] = max(tmpTest');
-realTest = mIdx' - 1
+% tSize = size(tNData);
+% testArr = [];
+% for i = 1:tSize(2)
+%     [xTest, fftTP1] = self_fft(tNData(:, i), fs);
+%     testArr = [testArr fftTP1];        
+% end
+% 
+% testTop = testArr(topIndex, :).'; 
+% % realTest = glmval(model, testTop, 'logit');   
+% 
+% tmpTest = mnrval(model,testTop) %Use LR Model multiclass
+% [M, mIdx] = max(tmpTest');
+% realTest = mIdx' - 1
 
 %% plot have not seen testing result
 % testLabelAssign = [ones(10,1)*0; ones(10,1); ones(10,1)*2];
